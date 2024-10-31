@@ -11,7 +11,9 @@ public class MultiplyingTask implements Runnable {
     @Override
     public void run() {
         for(int i = 0; i < linkTabulatedFunction.getCount(); ++i) {
-            linkTabulatedFunction.setY(i, 2*linkTabulatedFunction.getY(i));
+            synchronized (linkTabulatedFunction) {
+                linkTabulatedFunction.setY(i, 2 * linkTabulatedFunction.getY(i));
+            }
         }
         Thread currentThread = Thread.currentThread();
         System.out.println("The current thread: " + currentThread.getName() + " ,finished executing the task");

@@ -11,18 +11,26 @@ public class MultiplyingTaskExecutor {
         UnitFunction unitFunction = new UnitFunction();
         LinkedListTabulatedFunction linkedListTabulatedFunction = new LinkedListTabulatedFunction(unitFunction,1, 1000, 1000);
         List<Thread> list = new ArrayList<>();
+        ArrayList<MultiplyingTask> taskList = new ArrayList<>();
         for(int i = 0; i < 10; ++i){
             MultiplyingTask multiplyingTask = new MultiplyingTask(linkedListTabulatedFunction);
+            taskList.add(multiplyingTask);
             Thread thread = new Thread(multiplyingTask);
             list.add(thread);
         }
-        for(int i = 0; i < list.size(); ++i){
-            list.get(i).start();
+        for (Thread thread : list) {
+            thread.start();
         }
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        int i = 0;
+        while (!taskList.isEmpty()){
+            if (i >= taskList.size()){
+                i = 0;
+            }
+            if (!list.get(i).isAlive()){
+                taskList.remove(i);
+            }
+            ++i;
+
         }
         System.out.println(linkedListTabulatedFunction);
 

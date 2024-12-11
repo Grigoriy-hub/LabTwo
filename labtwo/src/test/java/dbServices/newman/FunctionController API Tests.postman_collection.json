@@ -1,0 +1,239 @@
+{
+  "info": {
+    "_postman_id": "f49f60a4-051b-49af-bdf2-a09245670bdf",
+    "name": "FunctionController API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "40310808"
+  },
+  "item": [
+    {
+      "name": "Create Function",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"Response contains the function name\", function () {",
+              "    pm.expect(pm.response.json().name).to.eql(\"Test Function\");",
+              "});",
+              "pm.environment.set(\"functionId\", pm.response.json().functionId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test Function\",\n  \"xFrom\": 0,\n  \"xTo\": 10,\n  \"count\": 100\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/functions",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "functions"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Function By ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response contains the function name\", function () {",
+              "    pm.expect(pm.response.json().name).to.eql(\"Test Function\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/functions/{{functionId}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "functions",
+            "{{functionId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Function",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response contains the updated function name\", function () {",
+              "    pm.expect(pm.response.json().name).to.eql(\"Updated Function\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Function\",\n  \"xFrom\": 1,\n  \"xTo\": 15,\n  \"count\": 50\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/functions/{{functionId}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "functions",
+            "{{functionId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Functions By Name",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response contains at least one function\", function () {",
+              "    pm.expect(pm.response.json().length).to.be.above(0);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/functions?name=Test Function",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "functions"
+          ],
+          "query": [
+            {
+              "key": "name",
+              "value": "Test Function"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Function",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/functions/{{functionId}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "functions",
+            "{{functionId}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
+}

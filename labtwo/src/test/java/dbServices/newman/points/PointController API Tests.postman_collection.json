@@ -1,0 +1,273 @@
+{
+  "info": {
+    "_postman_id": "4f72170b-d087-4626-bdeb-1d929c3b8dd4",
+    "name": "PointController API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "40310808"
+  },
+  "item": [
+    {
+      "name": "Create Function",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.environment.set(\"functionId\", pm.response.json().functionId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test Function\",\n  \"xFrom\": 0,\n  \"xTo\": 10,\n  \"count\": 100\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/functions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "functions"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Point",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.environment.set(\"pointId\", pm.response.json().pointId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"x\": 1.0,\n  \"y\": 2.0,\n  \"functionId\": {{functionId}}\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/points",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "points"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Point By ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response contains correct x and y\", function () {",
+              "    var response = pm.response.json();",
+              "    pm.expect(response).to.have.property(\"x\", 1.0);",
+              "    pm.expect(response).to.have.property(\"y\", 2.0);",
+              "    pm.expect(response).to.have.property(\"functionId\", pm.environment.get(\"functionId\"));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/points/{{pointId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "points",
+            "{{pointId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Points By Function",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response contains points for the function\", function () {",
+              "    var response = pm.response.json();",
+              "    pm.expect(response).to.be.an(\"array\").that.is.not.empty;",
+              "    response.forEach(function(point) {",
+              "        pm.expect(point).to.have.property(\"functionId\", pm.environment.get(\"functionId\"));",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/points/by-function/{{functionId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "points",
+            "by-function",
+            "{{functionId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Point",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response contains updated x and y\", function () {",
+              "    var response = pm.response.json();",
+              "    pm.expect(response).to.have.property(\"x\", 3.0);",
+              "    pm.expect(response).to.have.property(\"y\", 4.0);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"x\": 3.0,\n  \"y\": 4.0,\n  \"functionId\": {{functionId}}\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/points/{{pointId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "points",
+            "{{pointId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Point",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/points/{{pointId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "points",
+            "{{pointId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Function",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/functions/{{functionId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "functions",
+            "{{functionId}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

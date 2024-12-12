@@ -274,20 +274,17 @@
     {
       "key": "baseUrl",
       "value": "http://localhost:8080",
-      "type": "string",
-      "enabled": true
+      "type": "string"
     },
     {
       "key": "functionId",
       "value": "",
-      "type": "any",
-      "enabled": true
+      "type": "any"
     },
     {
       "key": "pointId",
       "value": "",
-      "type": "any",
-      "enabled": true
+      "type": "any"
     }
   ]
 }

@@ -18,3 +18,12 @@ CREATE TABLE public.function_points (
         REFERENCES public.functions(function_id)
         ON DELETE CASCADE
 );
+
+CREATE TABLE public.users (
+    user_id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(20) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    role VARCHAR(20) NOT NULL DEFAULT 'USER',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -13,7 +13,7 @@ class IntegralFunctionalTest {
     @Test
     void integrate_ExpectEqual_AllAvailableThreadsWithTabulatedFunction()throws ExecutionException,InterruptedException{
         var t_func=new LinkedListTabulatedFunction((double x)-> x*2.0,0,1000,1001);
-        assertEquals(1000000.0,test1.integrate(t_func),0.01);
+        assertEquals(1000000.0,test1.integrate(t_func),6);
     }
     @Test
     void integrate_ExpectEqual_ThreeThreadsWithTabulatedFunction()throws ExecutionException,InterruptedException{

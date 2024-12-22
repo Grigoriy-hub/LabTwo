@@ -22,8 +22,8 @@ import java.io.*;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class FunctionIOController {
-    private FunctionRepository functionRepository;
-    private MathFunctionService mathFunctionService;
+    private final FunctionRepository functionRepository;
+    private final MathFunctionService mathFunctionService;
 
     @PostMapping("/input")
     public ResponseEntity<FunctionDTO> input(@RequestParam("file") MultipartFile file) {

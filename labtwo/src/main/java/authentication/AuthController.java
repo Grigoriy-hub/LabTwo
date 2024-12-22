@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Аутентификация")
 @CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
-    private AuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
 
     @Operation(summary = "Регистрация пользователя")
     @PostMapping("/sign-up")

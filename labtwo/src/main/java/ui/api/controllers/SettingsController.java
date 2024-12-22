@@ -1,6 +1,6 @@
 package ui.api.controllers;
 
-import lombok.Getter;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

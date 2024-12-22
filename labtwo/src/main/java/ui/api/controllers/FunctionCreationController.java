@@ -29,9 +29,9 @@ import java.util.stream.IntStream;
 @CrossOrigin(origins = "http://localhost:8080")
 public class FunctionCreationController {
 
-    private FunctionRepository functionRepository;
-    private SettingsController settingsController;
-    private MathFunctionService mathFunctionService;
+    private final FunctionRepository functionRepository;
+    private final SettingsController settingsController;
+    private final MathFunctionService mathFunctionService;
 
 
     @PostMapping("/create-from-points")

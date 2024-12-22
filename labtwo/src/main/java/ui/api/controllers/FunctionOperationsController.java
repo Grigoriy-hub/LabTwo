@@ -30,10 +30,10 @@ import java.util.concurrent.ExecutionException;
 @Validated
 public class FunctionOperationsController {
     private final TabulatedFunctionOperationService operationService = new TabulatedFunctionOperationService();
-    private FunctionRepository functionRepository;
-    private SettingsController settingsController;
-    private FunctionCreationController functionCreationController;
-    private MathFunctionService mathFunctionService;
+    private final FunctionRepository functionRepository;
+    private final SettingsController settingsController;
+    private final FunctionCreationController functionCreationController;
+    private final MathFunctionService mathFunctionService;
 
     @PostMapping("/add")
     public ResponseEntity<FunctionDTO> addFunctions(

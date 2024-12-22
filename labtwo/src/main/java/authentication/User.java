@@ -7,7 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Getter
@@ -19,6 +19,7 @@ import java.util.Collections;
 public class User implements UserDetails {
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq")
     @SequenceGenerator(name = "user_id_seq", sequenceName = "user_id_seq", allocationSize = 1)
     private Long id;
@@ -36,7 +37,7 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Предпочтительно возвращать неизменяемый список для безопасности
-        return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
+        return  List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override

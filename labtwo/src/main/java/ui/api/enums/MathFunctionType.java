@@ -1,5 +1,6 @@
 package ui.api.enums;
 
+import lombok.Getter;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -8,10 +9,11 @@ import functions.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+@Getter
 public class MathFunctionType {
 
 
-    ;
+
 
     private final String localizedName;
     private final MathFunction function;
@@ -22,14 +24,6 @@ public class MathFunctionType {
     MathFunctionType(String localizedName, MathFunction function) {
         this.localizedName = localizedName;
         this.function = function;
-    }
-
-    public String getLocalizedName() {
-        return localizedName;
-    }
-
-    public MathFunction getFunction() {
-        return function;
     }
 
     public static List<String> getFunctions() {

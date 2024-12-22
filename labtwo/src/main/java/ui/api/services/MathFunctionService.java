@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 @Service
 public class MathFunctionService {
     @Autowired
-    private FunctionRepository functionRepository;
+    private final FunctionRepository functionRepository;
     private static final SettingsController settingsController = new SettingsController();
 
     public ResponseEntity<FunctionDTO> saveAndUpdateMathFunction(FunctionEntity entity) {

@@ -20,7 +20,7 @@ CREATE TABLE public.function_points (
 );
 
 CREATE TABLE public.users (
-    user_id_seq SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(20) NOT NULL,
     role VARCHAR(20) NOT NULL DEFAULT 'USER'

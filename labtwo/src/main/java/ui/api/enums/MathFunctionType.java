@@ -1,19 +1,18 @@
 package ui.api.enums;
 
+import functions.MathFunction;
+import functions.SimpleFunctionAnnotation;
 import lombok.Getter;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-import functions.*;
+
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 @Getter
 public class MathFunctionType {
-
-
-
 
     private final String localizedName;
     private final MathFunction function;

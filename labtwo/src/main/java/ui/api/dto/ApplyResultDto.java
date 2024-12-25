@@ -1,7 +1,5 @@
 package ui.api.dto;
 
-
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,3 +20,4 @@ public class ApplyResultDto {
     }
 
 }
+

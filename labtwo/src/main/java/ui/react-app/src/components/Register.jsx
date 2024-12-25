@@ -1,94 +1,61 @@
-import React, {useState} from 'react';
-import api from '../services/api';
-import {Alert, AlertTitle, AlertDescription} from "./ui/alert";
-import {UserPlus} from 'lucide-react';
+import React, { useState } from 'react';
+import axios from 'axios';
 
-const Register = ({onSuccess}) => {
+
+function Register({ onSuccess }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            setIsLoading(true);
-            setError(null);
-
-            const response = await api.post('/auth/sign-up', {
-                username,
-                password
-            });
-
-            if (response.data.token) {
+            const response = await axios.post('/users', { username, password });
+            if (response.status === 200) {
+                setSuccess('Пользователь успешно зарегистрирован!');
+                setError('');
                 onSuccess();
-                setUsername('');
-                setPassword('');
             }
-        } catch (error) {
-            console.error('Registration error:', error);
-            setError(error.response?.data?.message || 'Ошибка при регистрации');
-        } finally {
-            setIsLoading(false);
+        } catch {
+            setError('Пользователь с таким именем уже существует');
+            setSuccess('');
         }
     };
 
     return (
-        <div className="card">
-            <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
-                Регистрация
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Имя пользователя
-                    </label>
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className="input"
-                        required
-                        minLength={5}
-                        maxLength={50}
-                        placeholder="Придумайте имя пользователя"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Пароль
-                    </label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="input"
-                        required
-                        minLength={8}
-                        placeholder="Придумайте пароль"
-                    />
-                </div>
-                {error && (
-                    <Alert className="bg-red-50 border-red-200 dark:bg-red-900/30 dark:border-red-800">
-                        <AlertTitle className="text-red-700 dark:text-red-400">
-                            Ошибка
-                        </AlertTitle>
-                        <AlertDescription className="text-red-600 dark:text-red-300">
-                            {error}
-                        </AlertDescription>
-                    </Alert>
-                )}
-                <button
-                    type="submit"
-                    className="btn btn-primary w-full flex items-center justify-center gap-2"
-                    disabled={isLoading}
-                >
-                    <UserPlus className="w-4 h-4"/>
-                    {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
-                </button>
-            </form>
-        </div>
+        <form onSubmit={handleSubmit}>
+            <h2 className="text-lg font-bold mb-4">Регистрация</h2>
+            {error && <div className="text-red-500 mb-2">{error}</div>}
+            {success && <div className="text-green-500 mb-2">{success}</div>}
+            <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">Имя пользователя</label>
+                <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="mt-1 p-2 block w-full border rounded-md"
+                    required
+                />
+            </div>
+            <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">Пароль</label>
+                <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="mt-1 p-2 block w-full border rounded-md"
+                    required
+                />
+            </div>
+            <button
+                type="submit"
+                className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
+            >
+                Зарегистрироваться
+            </button>
+        </form>
     );
-};
+}
 
 export default Register;

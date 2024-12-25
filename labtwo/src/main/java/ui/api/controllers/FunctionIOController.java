@@ -1,4 +1,5 @@
 package ui.api.controllers;
+import functions.ArrayTabulatedFunction;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import java.io.*;
 @RequestMapping("/api/function-io")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
+
 public class FunctionIOController {
     private final FunctionRepository functionRepository;
     private final MathFunctionService mathFunctionService;
@@ -119,10 +121,14 @@ public class FunctionIOController {
         try {
             TabulatedFunction function = mathFunctionService.convertToTabulatedFunction(hash);
 
+            if (!(function instanceof ArrayTabulatedFunction arrayFunction)) {
+                throw new IllegalArgumentException("Function is not an instance of ArrayTabulatedFunction");
+            }
+
             File tempFile = File.createTempFile("function", ".json");
             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
 
-            FunctionsIO.serializeXml(writer, function);
+            FunctionsIO.serializeJson(writer, arrayFunction);
             writer.close();
 
             InputStreamResource resource = new InputStreamResource(new FileInputStream(tempFile));
@@ -142,6 +148,7 @@ public class FunctionIOController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
     @GetMapping("/output-xml")
     public ResponseEntity<Resource> outputXml(@RequestParam @NotNull Long hash) {
@@ -172,3 +179,4 @@ public class FunctionIOController {
         }
     }
 }
+

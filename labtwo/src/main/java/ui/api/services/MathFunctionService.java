@@ -1,5 +1,6 @@
 package ui.api.services;
 
+import dbServices.DTO.buildDTO.FunctionDTOBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,8 @@ import dbServices.repository.FunctionRepository;
 import ui.api.controllers.SettingsController;
 import ui.api.enums.TabulatedFunctionFactoryType;
 
+import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -28,15 +31,14 @@ public class MathFunctionService {
     private static final SettingsController settingsController = new SettingsController();
 
     public ResponseEntity<FunctionDTO> saveAndUpdateMathFunction(FunctionEntity entity) {
-        Optional<FunctionEntity> entityFind = functionRepository.findById(entity.getFunctionId());
-
-        FunctionDTO savedDto = new FunctionDTO();
-        savedDto.setFunctionId(functionRepository.save(entity).getFunctionId());
-        savedDto.setName(functionRepository.save(entity).getName());
-        savedDto.setXFrom(functionRepository.save(entity).getXFrom());
-        savedDto.setXTo(functionRepository.save(entity).getXTo());
-        savedDto.setCount(functionRepository.save(entity).getCount());
-
+        Optional<FunctionEntity> entityFind = functionRepository.findByHash(entity.getHash());
+        if (entityFind.isPresent()) {
+            entity.setUpdateAt(Instant.now());
+            entity.setCreatedAt(entityFind.get().getCreatedAt());
+        }
+        FunctionDTO savedDto = FunctionDTOBuilder.makeMathFunctionDto(
+                functionRepository.save(entity)
+        );
         return new ResponseEntity<>(savedDto, HttpStatus.OK);
     }
 
@@ -69,7 +71,7 @@ public class MathFunctionService {
         FunctionEntity functionEntity = functionRepository.findById(functionId)
                 .orElseThrow(() -> new RuntimeException("Function not found"));
 
-        TabulatedFunctionFactoryType factoryType = settingsController.getCurrentFactoryType().getBody().getFactoryType();
+        TabulatedFunctionFactoryType factoryType = Objects.requireNonNull(settingsController.getCurrentFactoryType().getBody()).getFactoryType();
 
         double[] xValues = functionEntity.getPoints().stream()
                 .mapToDouble(PointEntity::getX)
@@ -81,22 +83,18 @@ public class MathFunctionService {
 
         return createTabulatedFunction(xValues, yValues, factoryType);
     }
-    public ResponseEntity<FunctionDTO> createAndSaveMathFunctionEntity(TabulatedFunction function) {
-        FunctionEntity entity = new FunctionEntity();
-        entity.setPoints(
-                IntStream.range(0, function.getCount())
-                        .mapToObj(i -> {
-                            PointEntity point = new PointEntity();
-                            point.setX(function.getX(i));
-                            point.setY(function.getY(i));
-                            return point;
-                        })
-                        .collect(Collectors.toList())
-        );
 
-        entity.setName(function.getClass().getSimpleName());
+    public ResponseEntity<FunctionDTO> createAndSaveMathFunctionEntity(TabulatedFunction function) {
+        FunctionEntity entity = FunctionEntity.builder()
+                .points(
+                        IntStream.range(0, function.getCount())
+                                .mapToObj(i -> new PointEntity(function.getX(i), function.getY(i)))
+                                .collect(Collectors.toList())
+                )
+                .name(function.getClass().getSimpleName())
+                .hash(function.HashName())
+                .build();
 
         return saveAndUpdateMathFunction(entity);
     }
-
 }

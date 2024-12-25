@@ -20,6 +20,7 @@ import ui.api.dto.ApplyResultDto;
 import ui.api.enums.TabulatedFunctionFactoryType;
 import ui.api.services.MathFunctionService;
 
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 
@@ -27,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 @RequestMapping("/api/tabulated-function-operations")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:8080")
+
 @Validated
 public class FunctionOperationsController {
     private final TabulatedFunctionOperationService operationService = new TabulatedFunctionOperationService();
@@ -120,7 +122,7 @@ public class FunctionOperationsController {
     ) {
         try {
             TabulatedFunction function = mathFunctionService.convertToTabulatedFunction(functionId);
-            TabulatedFunctionFactoryType type = settingsController.getCurrentFactoryType().getBody().getFactoryType();
+            TabulatedFunctionFactoryType type = Objects.requireNonNull(settingsController.getCurrentFactoryType().getBody()).getFactoryType();
 
             TabulatedFunction resultFunction = new TabulatedDifferentialOperator(switch (type) {
                 case ARRAY_FACTORY -> new ArrayTabulatedFunctionFactory();
@@ -157,13 +159,12 @@ public class FunctionOperationsController {
 
         if (function.indexOfX(x) == -1) {
             ans = function.apply(x);
-            if (function instanceof Insertable) {
-                Insertable insertableObject = (Insertable) function;
+            if (function instanceof Insertable insertableObject) {
                 insertableObject.insert(x, ans);
                 functionRepository.deleteById(functionId);
                 FunctionDTO savedFunction = mathFunctionService.createAndSaveMathFunctionEntity((TabulatedFunction) insertableObject).getBody();
                 assert savedFunction != null;
-                result = new ApplyResultDto(ans, savedFunction.getFunctionId());
+                result = new ApplyResultDto(ans, savedFunction.getHashFunction());
             } else {
                 result = new ApplyResultDto(ans);
             }
@@ -188,8 +189,7 @@ public class FunctionOperationsController {
     @PostMapping("/insert")
     public ResponseEntity<FunctionDTO> insertFunction(@RequestParam @NotNull Long functionId, @RequestParam Double x, @RequestParam Double y) {
         TabulatedFunction myObject = mathFunctionService.convertToTabulatedFunction(functionId);
-        if (myObject instanceof Insertable) {
-            Insertable insertableObject = (Insertable) myObject;
+        if (myObject instanceof Insertable insertableObject) {
             insertableObject.insert(x, y);
             functionRepository.deleteById(functionId);
             return new ResponseEntity<>(mathFunctionService.createAndSaveMathFunctionEntity((TabulatedFunction) insertableObject).getBody(), HttpStatus.CREATED);
@@ -211,8 +211,7 @@ public class FunctionOperationsController {
     public ResponseEntity<FunctionDTO> removeFunction(@RequestParam @NotNull Long functionId, @RequestParam Double x) {
         TabulatedFunction myObject = mathFunctionService.convertToTabulatedFunction(functionId);
         int index = myObject.indexOfX(x);
-        if (myObject instanceof Removable) {
-            Removable removableObject = (Removable) myObject;
+        if (myObject instanceof Removable removableObject) {
             removableObject.remove(index);
             functionRepository.deleteById(functionId);
             return new ResponseEntity<>(mathFunctionService.createAndSaveMathFunctionEntity((TabulatedFunction) removableObject).getBody(), HttpStatus.CREATED);

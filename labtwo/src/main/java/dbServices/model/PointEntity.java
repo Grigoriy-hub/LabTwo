@@ -1,41 +1,33 @@
 package dbServices.model;
 
 import jakarta.persistence.*;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.DynamicUpdate;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "function_points")
+@Table(name = "points")
+@DynamicUpdate
 public class PointEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pointId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "function_id")
-    private FunctionEntity function;
-    private Double x;
-    private Double y;
-    public Long getPointId() {
-        return pointId;
-    }
-    public void setPointId(Long pointId) {
-        this.pointId = pointId;
-    }
-    public FunctionEntity getFunction() {
-        return function;
-    }
-    public void setFunction(FunctionEntity function) {
-        this.function = function;
-    }
-    public Double getX() {
-        return x;
-    }
-    public void setX(Double x) {
+    Double x;
+
+    Double y;
+
+    public PointEntity(Double x, Double y) {
         this.x = x;
-    }
-    public Double getY() {
-        return y;
-    }
-    public void setY(Double y) {
         this.y = y;
     }
+
 }

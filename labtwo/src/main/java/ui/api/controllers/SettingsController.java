@@ -13,13 +13,13 @@ import java.util.Objects;
 @RequestMapping("/api/settings")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:8080")
+
 public class SettingsController {
 
     private static TabulatedFunctionFactoryType currentFactoryType = TabulatedFunctionFactoryType.ARRAY_FACTORY;
 
     @GetMapping("/factory-type")
     public ResponseEntity<SettingsDto> getCurrentFactoryType() {
-        // Передаем объект с использованием сеттера или конструктора
         return ResponseEntity.ok(new SettingsDto(currentFactoryType));
     }
 
@@ -29,8 +29,6 @@ public class SettingsController {
             currentFactoryType = TabulatedFunctionFactoryType.ARRAY_FACTORY;
         else
             currentFactoryType = TabulatedFunctionFactoryType.LINKED_LIST_FACTORY;
-
-        // Создаем SettingsDto с обновленным типом фабрики
         SettingsDto settingsDto = new SettingsDto(currentFactoryType);
         return ResponseEntity.ok(settingsDto);
     }

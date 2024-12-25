@@ -1,64 +1,55 @@
 package dbServices.controller;
 
 import dbServices.DTO.PointDTO;
+import dbServices.DTO.buildDTO.PointDTOBuilder;
 import dbServices.model.PointEntity;
 import dbServices.repository.PointRepository;
-import dbServices.service.PointService;
+import exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
+@RequestMapping("/api/points")
 @CrossOrigin(origins = "http://localhost:3000")
 public class PointController {
 
     @Autowired
-    private PointService pointService;
     private PointRepository pointRepository;
 
 
-    @PostMapping("/api/points")
-    public ResponseEntity<PointDTO> createPointOrUpdate(@RequestParam(value = "x", required = false) Double X,
+    @PostMapping
+    public ResponseEntity<PointDTO> createOrUpdatePoint(@RequestParam(value = "x", required = false) Double X,
                                                         @RequestParam(value = "y", required = false) Double Y) {
+        PointEntity pointEntity = pointRepository.saveAndFlush(new PointEntity(X, Y));
 
-        PointEntity pEntity = new PointEntity();
-        pEntity.setY(X);
-        pEntity.setY(Y);
-        PointEntity pointEntity = pointRepository.save(pEntity);
-
-
-        PointDTO dto = new PointDTO();
-        dto.setPointId(pointEntity.getPointId());
-        dto.setFunctionId(pointEntity.getFunction().getFunctionId());
-        dto.setX(pointEntity.getX());
-        dto.setY(pointEntity.getY());
-
-        return ResponseEntity.status(201).body(dto);
+        PointDTO dto = PointDTOBuilder.makePointDto(pointEntity);
+        return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        try {
+            PointEntity entity = pointRepository.findById(id).orElseThrow(() -> new NotFoundException("Can't find point with id " + id));
+            pointRepository.delete(entity);
+            return ResponseEntity.ok().build();
+        } catch (NotFoundException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.notFound().build();
 
-    @GetMapping("/api/points/{id}")
-    public ResponseEntity<PointDTO> getPoint(@PathVariable Long id) {
-        PointDTO point = pointService.read(id);
-        if (point == null) {
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PointDTO> read(@PathVariable Long id) {
+        try {
+            PointDTO pointDTO = PointDTOBuilder.makePointDto(pointRepository.findById(id).orElseThrow(() -> new NotFoundException("Can't find point with id " + id)));
+            return ResponseEntity.ok(pointDTO);
+        } catch (NotFoundException e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(point);
     }
-
-
-
-    @DeleteMapping("/api/points/{id}")
-    public ResponseEntity<Void> deletePoint(@PathVariable Long id) {
-        if (pointService.read(id) == null) {
-            return ResponseEntity.notFound().build();
-        }
-        pointService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
-
 }
-

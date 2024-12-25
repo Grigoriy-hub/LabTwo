@@ -1,5 +1,6 @@
 package ui.api.controllers;
 
+import dbServices.DTO.buildDTO.FunctionDTOBuilder;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -8,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import dbServices.DTO.FunctionDTO;
 import dbServices.model.FunctionEntity;
 import dbServices.model.PointEntity;
-import ui.api.dto.SettingsDto;
 import ui.api.enums.MathFunctionType;
 import ui.api.enums.TabulatedFunctionFactoryType;
 import functions.*;
@@ -16,12 +16,13 @@ import dbServices.repository.FunctionRepository;
 import ui.api.services.MathFunctionService;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.Instant;
 import java.util.List;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 
 @RestController
 @RequestMapping("/api/function-creation")
@@ -38,13 +39,7 @@ public class FunctionCreationController {
     public ResponseEntity<FunctionDTO> createFromPoints(
             @RequestParam double[] x, @RequestParam double[] y
     ) {
-        // Проверяем корректность работы с settingsController
-        ResponseEntity<SettingsDto> response = settingsController.getCurrentFactoryType();
-        if (response == null || response.getBody() == null) {
-            throw new IllegalStateException("SettingsDto is null");
-        }
-
-        TabulatedFunctionFactoryType factoryType = response.getBody().getFactoryType();
+        TabulatedFunctionFactoryType factoryType = Objects.requireNonNull(settingsController.getCurrentFactoryType().getBody()).getFactoryType();
 
         TabulatedFunction function = mathFunctionService.createTabulatedFunction(
                 x,
@@ -52,36 +47,34 @@ public class FunctionCreationController {
                 factoryType
         );
 
-        // Создаем сущность с использованием точек из созданной функции
         List<PointEntity> points = IntStream.range(0, function.getCount())
-                .mapToObj(i -> {
-                    PointEntity point = new PointEntity();
-                    point.setX(function.getX(i));
-                    point.setY(function.getY(i));
-                    return point;
-                })
+                .mapToObj(i -> new PointEntity(function.getX(i), function.getY(i)))
                 .collect(Collectors.toList());
 
-        FunctionEntity entity = new FunctionEntity();
-        entity.setName(function.getClass().getSimpleName());
-        entity.setPoints(points);
+        FunctionEntity entity = FunctionEntity.builder()
+                .points(points)
+                .name(function.getClass().getSimpleName())
+                .hash(function.HashName())
+                .build();
 
-        FunctionDTO savedDto = new FunctionDTO();
-        savedDto.setFunctionId(functionRepository.save(entity).getFunctionId());
-        savedDto.setName(functionRepository.save(entity).getName());
-        savedDto.setXFrom(functionRepository.save(entity).getXFrom());
-        savedDto.setXTo(functionRepository.save(entity).getXTo());
-        savedDto.setCount(functionRepository.save(entity).getCount());
+
+        Optional<FunctionEntity> entityFind = functionRepository.findByHash(entity.getHash());
+        if (entityFind.isPresent()) {
+            entity.setUpdateAt(Instant.now());
+            entity.setCreatedAt(entityFind.get().getCreatedAt());
+        }
+        FunctionDTO savedDto = FunctionDTOBuilder.makeMathFunctionDto(
+                functionRepository.save(entity)
+        );
 
         return new ResponseEntity<>(savedDto, HttpStatus.CREATED);
     }
-
 
     @PostMapping("/create-from-math-function")
     public ResponseEntity<FunctionDTO> createFromMathFunction(
             @RequestParam String name, @RequestParam Double from, @RequestParam Double to, @RequestParam int count
     ) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        TabulatedFunctionFactoryType factoryType = settingsController.getCurrentFactoryType().getBody().getFactoryType();
+        TabulatedFunctionFactoryType factoryType = Objects.requireNonNull(settingsController.getCurrentFactoryType().getBody()).getFactoryType();
 
         MathFunction mathFunction = MathFunctionType.getLocalizedFunctionMap()
                 .get(name);
@@ -94,38 +87,32 @@ public class FunctionCreationController {
                 factoryType
         );
 
-        // Создаем сущность с использованием точек из созданной функции
         List<PointEntity> points = IntStream.range(0, function.getCount())
-                .mapToObj(i -> {
-                    PointEntity point = new PointEntity();
-                    point.setX(function.getX(i));
-                    point.setY(function.getY(i));
-                    return point;
-                })
+                .mapToObj(i -> new PointEntity(function.getX(i), function.getY(i)))
                 .collect(Collectors.toList());
 
-        FunctionEntity entity = new FunctionEntity();
-        entity.setPoints(points);
-        entity.setName(function.getClass().getSimpleName());
+        FunctionEntity entity = FunctionEntity.builder()
+                .points(points)
+                .name(function.getClass().getSimpleName())
+                .hash(function.HashName())
+                .build();
 
         // Сохранение функции в базу данных
-        Optional<FunctionEntity> entityFind = functionRepository.findById(entity.getFunctionId());
-
-        FunctionDTO savedDto = new FunctionDTO();
-        savedDto.setFunctionId(functionRepository.save(entity).getFunctionId());
-        savedDto.setName(functionRepository.save(entity).getName());
-        savedDto.setXFrom(functionRepository.save(entity).getXFrom());
-        savedDto.setXTo(functionRepository.save(entity).getXTo());
-        savedDto.setCount(functionRepository.save(entity).getCount());
-
-
+        Optional<FunctionEntity> entityFind = functionRepository.findByHash(entity.getHash());
+        if (entityFind.isPresent()) {
+            entity.setUpdateAt(Instant.now());
+            entity.setCreatedAt(entityFind.get().getCreatedAt());
+        }
+        FunctionDTO savedDto = FunctionDTOBuilder.makeMathFunctionDto(
+                functionRepository.save(entity)
+        );
 
 
         return new ResponseEntity<>(savedDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/functions-to-create")
-    public ResponseEntity<List<String>> getSimpleFunctions() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public ResponseEntity<List<String>> getSimpleFunctions() {
         List<String> ans = MathFunctionType.getFunctions();
         return new ResponseEntity<>(ans, HttpStatus.OK);
     }
@@ -137,7 +124,7 @@ public class FunctionCreationController {
         TabulatedFunction function2 = mathFunctionService.convertToTabulatedFunction(hash2);
         CompositeFunction composite = new CompositeFunction(function1, function2);
 
-        MathFunctionType.addFunctionMap(name, (MathFunction) composite);
+        MathFunctionType.addFunctionMap(name, composite);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

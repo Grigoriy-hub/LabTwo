@@ -1,20 +1,27 @@
 CREATE SCHEMA IF NOT EXISTS public;
 
-CREATE TABLE functions (
-    hash_id BIGINT PRIMARY KEY,
-    name TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE public.functions(
+    function_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    xFrom NUMERIC(100, 10) ,
+    xTo NUMERIC(100, 10) ,
+    count INTEGER
 );
-
-CREATE TABLE points (
-    id BIGSERIAL PRIMARY KEY,
-    x DOUBLE PRECISION NOT NULL,
-    y DOUBLE PRECISION NOT NULL,
-    function_hash_id BIGINT REFERENCES functions(hash_id) ON DELETE CASCADE
+CREATE TABLE public.function_points (
+    point_id SERIAL PRIMARY KEY,
+    function_id INTEGER NOT NULL,
+    x NUMERIC(100, 10) ,
+    y NUMERIC(100, 10) ,
+    CONSTRAINT fk_function
+        FOREIGN KEY (function_id)
+        REFERENCES public.functions(function_id)
+        ON DELETE CASCADE
 );
-CREATE TABLE users (
+CREATE TABLE public.users (
     user_id SERIAL PRIMARY KEY,
-    username TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(20) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    role VARCHAR(20) NOT NULL DEFAULT 'USER',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

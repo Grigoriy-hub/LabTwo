@@ -12,7 +12,6 @@ import functions.TabulatedFunction;
 import functions.factory.TabulatedFunctionFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.thoughtworks.xstream.XStream;
 
 public final class FunctionsIO {
     public static void serialize(BufferedOutputStream stream, TabulatedFunction function) throws IOException {
@@ -94,19 +93,6 @@ public final class FunctionsIO {
     }
 
 
-
-    public static void serializeXml(BufferedWriter writer, TabulatedFunction function) throws IOException {
-        XStream xStream = new XStream();
-        String xml = xStream.toXML(function);
-        writer.write(xml);
-        writer.flush();
-    }
-
-    public static ArrayTabulatedFunction deserializeXml(BufferedReader reader) throws IOException {
-        XStream xStream = new XStream();
-        xStream.allowTypes(new Class[]{ArrayTabulatedFunction.class});
-        return (ArrayTabulatedFunction) xStream.fromXML(reader);
-    }
 
 
 

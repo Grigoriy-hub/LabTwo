@@ -1,65 +1,49 @@
 package dbServices.controller;
-
-
 import dbServices.DTO.FunctionDTO;
-import dbServices.DTO.buildDTO.FunctionDTOBuilder;
-import dbServices.model.FunctionEntity;
-import dbServices.model.buildEntity.FunctionEntityBuilder;
-import dbServices.repository.FunctionRepository;
-import exceptions.NotFoundException;
-import lombok.RequiredArgsConstructor;
+import dbServices.service.FunctionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Instant;
-
-import java.util.Optional;
-
-@RequiredArgsConstructor
-@Transactional
+import java.util.List;
 @RestController
-@RequestMapping("/api/functions")
-@CrossOrigin(origins = "http://localhost:3000")
+@RequestMapping("/functions")
 public class FunctionController {
     @Autowired
-    FunctionRepository functionRepository;
-
+    private FunctionService functionService;
     @PostMapping
-    public ResponseEntity<FunctionDTO> createOrUpdateMathFunction(@RequestBody FunctionDTO mathFunctionDto) {
-        FunctionEntity entityForFind = FunctionEntityBuilder.makeMathFunctionEntity((mathFunctionDto));
-        Optional<FunctionEntity> entityFind = functionRepository.findByHash(entityForFind.getHash());
-        if (entityFind.isPresent()) {
-            entityForFind.setUpdateAt(Instant.now());
-            entityForFind.setCreatedAt(entityFind.get().getCreatedAt());
-        }
-        FunctionEntity functionEntity = functionRepository.save(entityForFind);
-        FunctionDTO dto = FunctionDTOBuilder.makeMathFunctionDto(functionEntity);
-        return new ResponseEntity<>(dto, HttpStatus.CREATED);
+    public ResponseEntity<FunctionDTO> createFunction(@RequestBody FunctionDTO functionDTO) {
+        FunctionDTO createdFunction = functionService.create(functionDTO);
+        return  ResponseEntity.status(201).body(createdFunction);
     }
-
-    @DeleteMapping("/{hash}")
-    public ResponseEntity<Void> delete(@PathVariable Long hash) {
-        try {
-            FunctionEntity entity = functionRepository.findByHash(hash).orElseThrow(() -> new NotFoundException("Can't find function with hash " + hash));
-            functionRepository.delete(entity);
-            return ResponseEntity.ok().build();
-        } catch (NotFoundException e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @GetMapping("/{id}")
+    public ResponseEntity<FunctionDTO> getFunctionById(@PathVariable Long id) {
+        FunctionDTO functionDTO = functionService.read(id);
+        if (functionDTO != null) {
+            return ResponseEntity.ok(functionDTO);
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
-
-    @GetMapping("/{hash}")
-    public ResponseEntity<FunctionDTO> read(@PathVariable Long hash) {
-        try {
-            FunctionDTO functionDTO = FunctionDTOBuilder.makeMathFunctionDto(functionRepository.findByHash(hash).orElseThrow(() -> new NotFoundException("Can't find function with hash " + hash)));
-            return new ResponseEntity<>(functionDTO, HttpStatus.OK);
-        } catch (NotFoundException e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @PutMapping("/{id}")
+    public ResponseEntity<FunctionDTO> updateFunction(@PathVariable Long id, @RequestBody FunctionDTO functionDTO) {
+        if (functionService.read(id) == null) {
+            return ResponseEntity.notFound().build();
         }
+        functionDTO.setFunctionId(id);
+        FunctionDTO updatedFunction = functionService.update(functionDTO);
+        return ResponseEntity.ok(updatedFunction);
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFunction(@PathVariable Long id) {
+        if (functionService.read(id) == null) {
+            return ResponseEntity.notFound().build();
+        }
+        functionService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+    @GetMapping
+    public ResponseEntity<List<FunctionDTO>> getFunctionsByName(@RequestParam String name) {
+        List<FunctionDTO> functions = functionService.getByName(name);
+        return ResponseEntity.ok(functions);
     }
 }

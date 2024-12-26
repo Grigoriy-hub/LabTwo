@@ -1,34 +1,43 @@
 package dbServices.DTO;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.time.Instant;
-import java.util.List;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class FunctionDTO {
-
-    @JsonProperty("hash_function")
-    private Long hashFunction;
-
+    private Long  functionId;
     private String name;
-
-    @JsonProperty("count_point")
-    Integer countPoint;
-
-    List<PointDTO> points;
-
-    @JsonProperty("created_at")
-    Instant createdAt;
-
-    @JsonProperty("update_at")
-    Instant updateAt;
-
+    private Double xFrom;
+    private Double xTo;
+    private Integer count;
+    public Long getFunctionId() {
+        return functionId;
+    }
+    public void setFunctionId(Long functionId) {
+        this.functionId = functionId;
+    }
+    @JsonProperty("name")
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    @JsonProperty("xFrom")
+    public Double getXFrom() {
+        return xFrom;
+    }
+    public void setXFrom(Double xFrom) {
+        this.xFrom = xFrom;
+    }
+    @JsonProperty("xTo")
+    public Double getXTo() {
+        return xTo;
+    }
+    public void setXTo(Double xTo) {
+        this.xTo = xTo;
+    }
+    @JsonProperty("count")
+    public Integer getCount() {
+        return count;
+    }
+    public void setCount(Integer count) {
+        this.count = count;
+    }
 }

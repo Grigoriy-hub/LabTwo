@@ -1,45 +1,53 @@
 package dbServices.model;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.DynamicUpdate;
-
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "functions")
-@Builder
-@DynamicUpdate
 public class FunctionEntity {
-
     @Id
-    @Column(name = "hash_id")
-    Long hash;
-
-    String name;
-
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL) // добавляем cascade
-    List<PointEntity> points;
-
-    @Column(name = "created_at")
-    Instant createdAt;
-
-    @Column(name = "modified_at")
-    Instant updateAt;
-
-    @PrePersist
-    public void prePersist() {
-        createdAt = Instant.now();
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long functionId;
+    private String name;
+    private Double xFrom;
+    private Double xTo;
+    private Integer count;
+    @OneToMany(mappedBy = "function", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<PointEntity> points = new ArrayList<>();
+    public Long getFunctionId() {
+        return functionId;
     }
-
-    @PreUpdate
-    public void preUpdate() {
-        updateAt = Instant.now();
+    public void setFunctionId(Long functionId) {
+        this.functionId = functionId;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public Double getXFrom() {
+        return xFrom;
+    }
+    public void setXFrom(Double xFrom) {
+        this.xFrom = xFrom;
+    }
+    public Double getXTo() {
+        return xTo;
+    }
+    public void setXTo(Double xTo) {
+        this.xTo = xTo;
+    }
+    public Integer getCount() {
+        return count;
+    }
+    public void setCount(Integer count) {
+        this.count = count;
+    }
+    public List<PointEntity> getPoints() {
+        return points;
+    }
+    public void setPoints(List<PointEntity> points) {
+        this.points = points;
     }
 }
